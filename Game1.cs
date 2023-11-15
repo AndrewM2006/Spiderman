@@ -50,7 +50,26 @@ namespace Spiderman
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+            if (screen == Screen.Intro)
+            {
 
+            }
+            else if (screen == Screen.Swinging)
+            {
+
+            }
+            else if (screen == Screen.Landing)
+            {
+
+            }
+            else if (screen == Screen.Punch)
+            {
+
+            }
+            else if (screen == Screen.End)
+            {
+
+            }
             // TODO: Add your update logic here
 
             base.Update(gameTime);
