@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
@@ -12,19 +13,27 @@ namespace Spiderman
         private SpriteBatch _spriteBatch;
         Texture2D spidermanBGTexture;
         Texture2D cityBGTexture;
+        Texture2D roofTexture;
+        Texture2D venom1Texture;
+        Texture2D venom2Texture;
         Rectangle city1Rect;
         Rectangle city2Rect;
         Vector2 citySpeed;
+        Vector2 spidermanSpeed;
+        Rectangle spidermanRect;
         List<Texture2D> spiderman = new List<Texture2D>();
+        List<Texture2D> spiderman2 = new List<Texture2D>();
         SpriteFont presskeyFont;
         int frame, swings;
         bool nextFrame;
+        float seconds;
+        float startTime;
+        SoundEffectInstance spidersonginstance;
         enum Screen
         {
             Intro,
             Swinging,
             Landing,
-            Punch,
             End
         }
         Screen screen;
@@ -48,6 +57,8 @@ namespace Spiderman
             city1Rect = new Rectangle(0, 0, 1800, 500);
             city2Rect = new Rectangle(-1800, 0, 1800, 500);
             citySpeed = new Vector2(10, 0);
+            spidermanSpeed = new Vector2(3, 2);
+            spidermanRect = new Rectangle(0, -30, 140, 150);
             swings = 0;
             base.Initialize();
         }
@@ -68,20 +79,36 @@ namespace Spiderman
                     spiderman.Add(Content.Load<Texture2D>("frame_" + i + "_delay-0.03s"));
                 }
             }
+            for (int i =1; i<12; i++)
+            {
+                spiderman2.Add(Content.Load<Texture2D>("Spiderman" + i));
+            }
             cityBGTexture = Content.Load<Texture2D>("CityBG");
+            var spidersong = Content.Load<SoundEffect>("SpidermanSong");
+            roofTexture = Content.Load<Texture2D>("Rooftop");
+            venom1Texture = Content.Load<Texture2D>("Venom1");
+            venom2Texture = Content.Load<Texture2D>("Venom2");
+            spidersonginstance = spidersong.CreateInstance();
+            spidersonginstance.Play();
             // TODO: use this.Content to load your game content here
         }
 
         protected override void Update(GameTime gameTime)
         {
+            seconds = (float)gameTime.TotalGameTime.TotalSeconds - startTime;
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             if (screen == Screen.Intro)
             {
                 var keys = Keyboard.GetState().GetPressedKeys();
+                if (spidersonginstance.State == SoundState.Stopped)
+                {
+                    screen = Screen.Swinging;
+                }
                 if (keys.Count() > 0)
                 {
                     screen = Screen.Swinging;
+                    spidersonginstance.Stop();
                 }
             }
             else if (screen == Screen.Swinging)
@@ -103,25 +130,30 @@ namespace Spiderman
                     {
                         frame = 0;
                         swings++;
-                        if (swings > 10)
+                        if (swings > 3) ///change back to > 10
                         {
                             screen = Screen.Landing;
+                            frame = 0;
+                            startTime = (float)gameTime.TotalGameTime.TotalSeconds;
                         }
                     }
-                    nextFrame = false;
+                   
                 }
-                else
-                {
-                    nextFrame = true;
-                }
+                nextFrame = ! nextFrame;
+               
             }
             else if (screen == Screen.Landing)
             {
-
-            }
-            else if (screen == Screen.Punch)
-            {
-
+                if (spidermanRect.Left < 400)
+                {
+                    spidermanRect.X += (int)spidermanSpeed.X;
+                    spidermanRect.Y += (int)spidermanSpeed.Y;
+                }
+                if (seconds > 0.7 && frame<2)
+                {
+                    frame++;
+                    startTime = (float)gameTime.TotalGameTime.TotalSeconds;
+                }
             }
             else if (screen == Screen.End)
             {
@@ -151,11 +183,10 @@ namespace Spiderman
             }
             else if (screen == Screen.Landing)
             {
-
-            }
-            else if (screen == Screen.Punch)
-            {
-
+                _spriteBatch.Draw(cityBGTexture, new Rectangle(0, 0, 1800, 500), Color.White);
+                _spriteBatch.Draw(roofTexture, new Rectangle(400, 400, 500, 100), Color.White);
+                _spriteBatch.Draw(venom1Texture, new Rectangle(600, 300, 180, 140), Color.White);
+                _spriteBatch.Draw(spiderman2[frame], spidermanRect, Color.White);
             }
             else if (screen == Screen.End)
             {
