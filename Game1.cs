@@ -20,21 +20,26 @@ namespace Spiderman
         Rectangle city2Rect;
         Vector2 citySpeed;
         Vector2 spidermanSpeed;
+        Vector2 venomSpeed;
         Rectangle spidermanRect;
+        Rectangle venomRect;
         List<Texture2D> spiderman = new List<Texture2D>();
         List<Texture2D> spiderman2 = new List<Texture2D>();
         SpriteFont presskeyFont;
         int frame, swings;
         bool nextFrame;
+        bool drawtext, landed;
         float seconds;
         float startTime;
+        KeyboardState keyboardState;
         SoundEffectInstance spidersonginstance;
         enum Screen
         {
             Intro,
             Swinging,
             Landing,
-            End
+            GoodEnd,
+            BadEnd
         }
         Screen screen;
         public Game1()
@@ -60,6 +65,10 @@ namespace Spiderman
             spidermanSpeed = new Vector2(3, 2);
             spidermanRect = new Rectangle(0, -30, 140, 150);
             swings = 0;
+            drawtext = false;
+            venomRect = new Rectangle(600, 300, 180, 140);
+            venomSpeed = new Vector2(3, 0);
+            landed = true;
             base.Initialize();
         }
 
@@ -96,6 +105,7 @@ namespace Spiderman
         protected override void Update(GameTime gameTime)
         {
             seconds = (float)gameTime.TotalGameTime.TotalSeconds - startTime;
+            keyboardState = Keyboard.GetState();
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             if (screen == Screen.Intro)
@@ -130,7 +140,7 @@ namespace Spiderman
                     {
                         frame = 0;
                         swings++;
-                        if (swings > 3) ///change back to > 10
+                        if (swings > 5)
                         {
                             screen = Screen.Landing;
                             frame = 0;
@@ -144,7 +154,7 @@ namespace Spiderman
             }
             else if (screen == Screen.Landing)
             {
-                if (spidermanRect.Left < 400)
+                if (spidermanRect.Left < 400 && frame<2)
                 {
                     spidermanRect.X += (int)spidermanSpeed.X;
                     spidermanRect.Y += (int)spidermanSpeed.Y;
@@ -154,8 +164,67 @@ namespace Spiderman
                     frame++;
                     startTime = (float)gameTime.TotalGameTime.TotalSeconds;
                 }
+                else if (frame == 2)
+                {
+                    drawtext = true;
+                    if (keyboardState.IsKeyDown(Keys.Space) || seconds > 2)
+                    {
+                        drawtext = false;
+                        if (seconds < 2)
+                        {
+                            frame++;
+                            startTime = (float)gameTime.TotalGameTime.TotalSeconds;
+                            spidermanRect = new Rectangle(550, 300, 140, 150);
+                        }
+                        else
+                        {
+                            frame = 8;
+                            landed = false;
+                            startTime = (float)gameTime.TotalGameTime.TotalSeconds;
+                            spidermanRect = new Rectangle(450, 330, 140, 150);
+                        }
+                    }
+                }
+                else if (frame > 2 && frame<7)
+                {
+                    if (seconds > 0.4)
+                    {
+                        frame++;
+                        startTime = (float)gameTime.TotalGameTime.TotalSeconds;
+                    }
+                }
+                else if (frame == 7)
+                {
+                    venomRect.X += (int)venomSpeed.X;
+                    if (venomRect.Left>_graphics.PreferredBackBufferWidth)
+                    {
+                        screen = Screen.GoodEnd;
+                    }
+                }
+                else if (frame < 10 && frame>7)
+                {
+                    spidermanSpeed = new Vector2(2, 0);
+                    spidermanRect.X += (int)spidermanSpeed.X;
+                    if (seconds > 0.7)
+                    {
+                        frame++;
+                        startTime = (float)gameTime.TotalGameTime.TotalSeconds;
+                    }
+                }
+                else if (frame == 10)
+                {
+                    spidermanRect.X += (int)spidermanSpeed.X;
+                    if (spidermanRect.Left > _graphics.PreferredBackBufferWidth)
+                    {
+                        screen = Screen.BadEnd;
+                    }
+                }
             }
-            else if (screen == Screen.End)
+            else if (screen == Screen.GoodEnd)
+            {
+
+            }
+            else
             {
 
             }
@@ -185,10 +254,25 @@ namespace Spiderman
             {
                 _spriteBatch.Draw(cityBGTexture, new Rectangle(0, 0, 1800, 500), Color.White);
                 _spriteBatch.Draw(roofTexture, new Rectangle(400, 400, 500, 100), Color.White);
-                _spriteBatch.Draw(venom1Texture, new Rectangle(600, 300, 180, 140), Color.White);
+                if (frame >= 7 && landed)
+                {
+                    _spriteBatch.Draw(venom2Texture, venomRect, Color.White);
+                }
+                else
+                {
+                    _spriteBatch.Draw(venom1Texture, new Rectangle(600, 300, 180, 140), Color.White);
+                }
                 _spriteBatch.Draw(spiderman2[frame], spidermanRect, Color.White);
+                if (drawtext)
+                {
+                    _spriteBatch.DrawString(presskeyFont, "Press Space to Land", new Vector2 (120, 100), Color.White);
+                }
             }
-            else if (screen == Screen.End)
+            else if (screen == Screen.GoodEnd)
+            {
+
+            }
+            else
             {
 
             }
