@@ -25,6 +25,12 @@
 /processorParam:TextureFormat=Color
 /build:CityBG.jpg
 
+#begin Danger.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Danger.mp3
+
 #begin frame_00_delay-0.03s.gif
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -865,6 +871,12 @@
 /processorParam:TextureFormat=Color
 /build:frame_69_delay-0.03s.gif
 
+#begin Ow.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Ow.mp3
+
 #begin PressKey.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
@@ -883,6 +895,12 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Rooftop.jpg
+
+#begin Spider-Man.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Spider-Man.mp3
 
 #begin Spiderman1.png
 /importer:TextureImporter
@@ -1016,6 +1034,18 @@
 /processorParam:TextureFormat=Color
 /build:Spiderman9.png
 
+#begin SpidermanBad.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:SpidermanBad.jpg
+
 #begin SpidermanBG.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -1027,6 +1057,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:SpidermanBG.jpg
+
+#begin SpidermanGood.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:SpidermanGood.jpg
 
 #begin SpidermanSong.wav
 /importer:WavImporter
@@ -1057,4 +1099,10 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Venom2.png
+
+#begin WA.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:WA.wav
 

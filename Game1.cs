@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,6 +18,8 @@ namespace Spiderman
         Texture2D roofTexture;
         Texture2D venom1Texture;
         Texture2D venom2Texture;
+        Texture2D goodEndingBGTexture;
+        Texture2D badEndingBGTexture;
         Rectangle city1Rect;
         Rectangle city2Rect;
         Vector2 citySpeed;
@@ -32,6 +36,10 @@ namespace Spiderman
         float seconds;
         float startTime;
         KeyboardState keyboardState;
+        Song ow;
+        Song danger;
+        Song spider;
+        SoundEffectInstance waInstance;
         SoundEffectInstance spidersonginstance;
         enum Screen
         {
@@ -94,9 +102,16 @@ namespace Spiderman
             }
             cityBGTexture = Content.Load<Texture2D>("CityBG");
             var spidersong = Content.Load<SoundEffect>("SpidermanSong");
+            var wa = Content.Load<SoundEffect>("WA");
+            waInstance = wa.CreateInstance();
             roofTexture = Content.Load<Texture2D>("Rooftop");
             venom1Texture = Content.Load<Texture2D>("Venom1");
             venom2Texture = Content.Load<Texture2D>("Venom2");
+            goodEndingBGTexture = Content.Load<Texture2D>("SpidermanGood");
+            badEndingBGTexture = Content.Load<Texture2D>("SpidermanBad");
+            ow = Content.Load<Song>("Ow");
+            danger = Content.Load<Song>("Danger");
+            spider = Content.Load<Song>("Spider-Man");
             spidersonginstance = spidersong.CreateInstance();
             spidersonginstance.Play();
             // TODO: use this.Content to load your game content here
@@ -114,11 +129,13 @@ namespace Spiderman
                 if (spidersonginstance.State == SoundState.Stopped)
                 {
                     screen = Screen.Swinging;
+                    MediaPlayer.Play(danger);
                 }
                 if (keys.Count() > 0)
                 {
                     screen = Screen.Swinging;
                     spidersonginstance.Stop();
+                    MediaPlayer.Play(danger);
                 }
             }
             else if (screen == Screen.Swinging)
@@ -140,9 +157,10 @@ namespace Spiderman
                     {
                         frame = 0;
                         swings++;
-                        if (swings > 5)
+                        if (swings > 12)
                         {
                             screen = Screen.Landing;
+                            MediaPlayer.Stop();
                             frame = 0;
                             startTime = (float)gameTime.TotalGameTime.TotalSeconds;
                         }
@@ -154,7 +172,7 @@ namespace Spiderman
             }
             else if (screen == Screen.Landing)
             {
-                if (spidermanRect.Left < 400 && frame<2)
+                if (spidermanRect.Left < 400 && frame<=2)
                 {
                     spidermanRect.X += (int)spidermanSpeed.X;
                     spidermanRect.Y += (int)spidermanSpeed.Y;
@@ -182,12 +200,14 @@ namespace Spiderman
                             landed = false;
                             startTime = (float)gameTime.TotalGameTime.TotalSeconds;
                             spidermanRect = new Rectangle(450, 330, 140, 150);
+                            MediaPlayer.Play(ow);
                         }
                     }
                 }
                 else if (frame > 2 && frame<7)
                 {
-                    if (seconds > 0.4)
+                    MediaPlayer.Play(ow);
+                    if (seconds > 0.2)
                     {
                         frame++;
                         startTime = (float)gameTime.TotalGameTime.TotalSeconds;
@@ -199,6 +219,7 @@ namespace Spiderman
                     if (venomRect.Left>_graphics.PreferredBackBufferWidth)
                     {
                         screen = Screen.GoodEnd;
+                        MediaPlayer.Play(spider);
                     }
                 }
                 else if (frame < 10 && frame>7)
@@ -217,16 +238,28 @@ namespace Spiderman
                     if (spidermanRect.Left > _graphics.PreferredBackBufferWidth)
                     {
                         screen = Screen.BadEnd;
+                        waInstance.IsLooped = true;
+                        waInstance.Play();
                     }
                 }
             }
             else if (screen == Screen.GoodEnd)
             {
-
+                var keys = Keyboard.GetState().GetPressedKeys();
+                if (keys.Count() > 0)
+                {
+                    MediaPlayer.Stop();
+                    Environment.Exit(0);
+                }
             }
             else
             {
-
+                var keys = Keyboard.GetState().GetPressedKeys();
+                if (keys.Count() > 0)
+                {
+                    waInstance.Stop();
+                    Environment.Exit(0);
+                }
             }
             // TODO: Add your update logic here
 
@@ -270,11 +303,18 @@ namespace Spiderman
             }
             else if (screen == Screen.GoodEnd)
             {
-
+                _spriteBatch.Draw(goodEndingBGTexture, new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
+                _spriteBatch.DrawString(presskeyFont, "Thanks for Watching!", new Vector2(120, 300), Color.Red);
+                _spriteBatch.DrawString(presskeyFont, "Press Any Key to Exit", new Vector2(110, 400), Color.Red);
             }
             else
             {
-
+                _graphics.PreferredBackBufferWidth = 700;
+                _graphics.ApplyChanges();
+                _spriteBatch.Draw(badEndingBGTexture, new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
+                _spriteBatch.DrawString(presskeyFont, "Thanks for Watching!", new Vector2(35, 200), Color.Red);
+                _spriteBatch.DrawString(presskeyFont, "Press Any Key", new Vector2(135, 300), Color.Red);
+                _spriteBatch.DrawString(presskeyFont, "to Exit", new Vector2(235, 400), Color.Red);
             }
             _spriteBatch.End();
             base.Draw(gameTime);
